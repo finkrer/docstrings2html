@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" class="html">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="${stylesheet}">
+    <title>${module_name}</title>
+</head>
+<body class="body">
+<p class="module-name">${module_name}</p>
+    % for cls in classes:
+        ${print_class(cls)}\
+    % endfor
+</body>
+</html>
+
+<%def name='print_class(cls)'>
+% if cls.name:
+    <div class="class">
+    <p class="class-signature">
+    % if cls.parameters:
+        <span class="class-name">${cls.name}</span>(<span class="class-parameters">${cls.parameters}</span>)
+    % else:
+        <span class="class-name">${cls.name}</span>
+    % endif
+% endif
+</p>
+    <pre class="class-docstring">${cls.docstring}</pre>
+% for method in cls.methods:
+${print_method(method)}\
+% endfor
+</div>
+</%def>
+
+<%def name='print_method(method)'>
+    <div class="method">
+        <p class="method-signature">
+            <span class="method-name">${method.name}</span>(<span
+                class="method-parameters">${', '.join(method.parameters)}</span>)
+        </p>
+        <pre class="method-docstring">${method.docstring}</pre>
+    </div>
+</%def>
