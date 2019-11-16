@@ -14,25 +14,27 @@
 </html>
 
 <%def name='print_class(cls)'>
-% if cls.name:
-    <div class="class">
-    <p class="class-signature">
-    % if cls.parameters:
-        <span class="class-name">${cls.name}</span>(<span class="class-parameters">${cls.parameters}</span>)
-    % else:
-        <span class="class-name">${cls.name}</span>
+    % if cls.name:
+        <div class="class">
+        <p class="class-signature">
+        % if cls.parameters:
+            <span class="class-name">${cls.name}</span>(<span class="class-parameters">${cls.parameters}</span>)
+        % else:
+            <span class="class-name">${cls.name}</span>
+        % endif
     % endif
-% endif
-% if cls.name:
-    </p>
-% endif
-    <pre class="class-docstring">${cls.docstring}</pre>
-% for method in cls.methods:
-    ${print_method(method)}
-% endfor
-% if cls.name:
-    </div>
-% endif
+    % if cls.name:
+        </p>
+    % endif
+    % if cls.docstring:
+        <pre class="class-docstring">${cls.docstring}</pre>
+    % endif
+    % for method in cls.methods:
+        ${print_method(method)}
+    % endfor
+    % if cls.name:
+        </div>
+    % endif
 </%def>
 
 <%def name='print_method(method)'>
