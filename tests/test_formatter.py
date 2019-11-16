@@ -59,7 +59,8 @@ class FormatterTest(unittest.TestCase):
         
         <div class="class">
         <p class="class-signature">
-            <span class="class-name">A</span>(<span class="class-parameters">object</span>)
+            <span class="class-name">A</span>(<span
+                class="class-parameters">object</span>)
         </p>
         <pre class="class-docstring">Docstring</pre>
         
