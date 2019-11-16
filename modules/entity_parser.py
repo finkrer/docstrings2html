@@ -14,8 +14,9 @@ class Parser:
         result = []
         current_group = []
         for line in lines:
-            if re.match(rf'[^\S\n]*{separator_marker}\w+(\(.+\))?:', line):
-                result.append(current_group)
+            if re.match(rf'[^\S\n]*{separator_marker}\w+(\(.*\))?:', line):
+                if current_group:
+                    result.append(current_group)
                 current_group = []
             current_group.append(line)
         if current_group:
@@ -24,11 +25,13 @@ class Parser:
 
     def _get_group_title(self, group_lines, title_marker):
         """Return the title of a group"""
-        title_line = group_lines[0]
+        if not group_lines:
+            return ''
+        title_line = group_lines[0].rstrip()
         index = group_lines[0].find(title_marker)
         if index == -1:
             return ''
-        return title_line[index + len(title_marker):-2]
+        return title_line[index + len(title_marker):-1]
 
     def _split_title(self, title):
         """Split title into name and parameters"""
@@ -41,10 +44,12 @@ class Parser:
 
     def _split_parameters(self, parameters):
         """Split parameter string into parameters"""
+        if not parameters:
+            return []
         return list(map(str.strip, parameters.split(',')))
 
     def get_methods(self, lines):
-        """Extract method objects from python file"""
+        """Extract method objects from lines"""
         result = []
         methods = self._split_lines(lines, Method.TITLE_MARKER)
         for m in methods:
@@ -60,7 +65,7 @@ class Parser:
         return result
 
     def get_classes(self, lines):
-        """Extract class objects from python file"""
+        """Extract class objects from lines"""
         result = []
         classes = self._split_lines(lines, Class.TITLE_MARKER)
         for c in classes:
@@ -76,7 +81,7 @@ class Parser:
     def _get_docstring(self, entity_lines):
         """Get entity's docstring from lines containing its text"""
         entity = ''.join(entity_lines)
-        result = re.search(r'\"\"\"(.*?)\"\"\"(?sm)', entity)
+        result = re.search(r'(?sm)\"\"\"(.*?)\"\"\"', entity)
         if result is None:
             return ''
         return self._trim(result.groups()[0])
