@@ -46,7 +46,7 @@ class Parser:
         """Split parameter string into parameters"""
         if not parameters:
             return []
-        return list(map(str.strip, parameters.split(',')))
+        return [parameter.strip() for parameter in parameters.split(', ')]
 
     def get_methods(self, lines):
         """Extract method objects from lines"""

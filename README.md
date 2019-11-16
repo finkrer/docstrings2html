@@ -9,11 +9,12 @@ docstrings с выводом в виде HTML-страницы.
 ## Требования
 * Python не ниже версии 3.6
 * mako
+* anytree
 
 ## Состав
 * Основной файл: `docstrings2html.py`
 * Модули: `modules/`
-* Шаблоны и стили: `templates/`
+* Шаблоны: `templates/`
 * Тесты: `tests/`
 
 ## Консольная версия
@@ -26,5 +27,4 @@ docstrings с выводом в виде HTML-страницы.
 Класс `entity_parser.Parser` разбивает текст модуля на классы (`entity_parser.Class`)
 и методы (`entity_parser.Method`), также считывая их docstrings.
 Затем класс `template_formatter.TemplateFormatter` создает HTML-страницу документации
-на основе предоставленного шаблона mako (по умолчанию `templates/template.html`)
-и таблицы стилей CSS (по умолчанию `templates/style.css`).
+на основе шаблона mako (`templates/docpage.html`).

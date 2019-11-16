@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en" class="html">
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="${stylesheet}">
-    <title>${module_name}</title>
-</head>
-<body class="body">
+## -*- coding: utf-8 -*-
+<%inherit file="/templates/base.html"/>
+
+<%block name="title">${module_name}</%block>
 <p class="module-name">${module_name}</p>
-    % for cls in classes:
+% for cls in classes:
         ${print_class(cls)}
-    % endfor
-</body>
-</html>
+% endfor
 
 <%def name='print_class(cls)'>
     % if cls.name:

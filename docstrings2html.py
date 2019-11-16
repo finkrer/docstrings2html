@@ -22,53 +22,90 @@ except Exception as e:
 
 
 def main():
+    """Application entry point"""
     arguments = _parse_arguments()
+    output = Path(arguments.output)
+    parser = Parser(arguments.nonpublic, arguments.empty)
     try:
-        with open(arguments.template, encoding='utf-8') as template:
-            template = ''.join(template.readlines())
+        template_formatter = TemplateFormatter('./')
     except Exception as e:
-        _exit(
-            f'Error while accessing template file {arguments.template}:\n{e}',
-            1)
-
-    try:
-        with open(arguments.input_path, encoding='utf-8') as input_file:
-            lines = input_file.readlines()
-    except Exception as e:
-        _exit(f'Error while accessing input file {arguments.input_path}:\n{e}',
+        _exit(f'Error while rendering template {arguments.template}:\n{e}',
               1)
 
-    parser = Parser(arguments.nonpublic, arguments.empty)
+    if arguments.directory:
+        files = []
+        for directory in arguments.input_files:
+            dir_path = Path(directory)
+            dir_files = dir_path.rglob('*.py')
+            dir_files = [(file, file.relative_to(dir_path)) for file in
+                         dir_files]
+            files.extend(dir_files)
+    else:
+        files = [(file, file) for file in arguments.input_files]
+
+    for file in files:
+        write_docpage(file[0], output.joinpath(file[1]), parser,
+                      template_formatter)
+
+    if arguments.index:
+        output_paths = [str(file[1]) + '.html' for file in files]
+        output_paths.sort()
+        base_path = output.resolve()
+        page = template_formatter.create_index(base_path, output_paths)
+        index_path = output.joinpath('index.html')
+        try_write(index_path, page, f'Error while accessing output file '
+                                    f'{index_path}:\n')
+
+
+def try_read(filename, message, error_code=1):
+    """Try to read file and exit with message on failure"""
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            result = file.readlines()
+    except Exception as e:
+        _exit(message + str(e), error_code)
+    return result
+
+
+def try_write(filename, data, message, error_code=1):
+    """Try to write file and exit with message on failure"""
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(data)
+    except Exception as e:
+        _exit(message + str(e), error_code)
+
+
+def write_docpage(input_path, output_path, parser, formatter):
+    """Create docpage and write it to disk"""
+    path = Path(input_path)
+    lines = try_read(input_path, f'Error while accessing input file '
+                                 f'{input_path}:\n')
     classes = parser.get_classes(lines)
-
-    try:
-        template_formatter = TemplateFormatter(template, arguments.stylesheet,
-                                               Path(arguments.input_path).name)
-        page = template_formatter.create_page(classes)
-    except Exception as e:
-        _exit(f'Error while rendering template {arguments.template}:\n{e}', 1)
-
-    try:
-        with open(arguments.output_path, 'w', encoding='utf-8') as output_file:
-            output_file.write(page)
-    except Exception as e:
-        _exit(
-            f'Error while accessing output file {arguments.output_path}:\n{e}',
-            1)
+    page = formatter.create_docpage(path.name, classes)
+    output_dir = Path(output_path).parent
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True)
+    file_path = f'{output_path}.html'
+    try_write(file_path, page, f'Error while accessing output file '
+                               f'{file_path}:\n')
 
 
 def _parse_arguments():
+    """Parse arguments"""
     argparser = argparse.ArgumentParser(
         description='Convert a Python file into an HTML documentation page')
-    argparser.add_argument('input_path', help='Path to input file')
-    argparser.add_argument('output_path', help='Path to output file')
-    argparser.add_argument('stylesheet',
-                           help='Optional path to custom stylesheet',
-                           nargs='?', default='./templates'
-                                              '/style.css')
-    argparser.add_argument('template', help='Optional path to custom template',
-                           nargs='?', default='./templates'
-                                              '/template.html')
+    argparser.add_argument('input_files', help='Path to input files',
+                           nargs='+')
+    argparser.add_argument('--output', help='Path to output directory',
+                           nargs='?', default='./')
+    argparser.add_argument('--directory', '-d',
+                           help='Treat input files as directories',
+                           action='store_true')
+    argparser.add_argument('--index', '-i',
+                           help='Create an index.html file with links to all '
+                                'output files',
+                           action='store_true')
     argparser.add_argument('--nonpublic', '-n',
                            help='Include non-public methods and classes',
                            action='store_true')
