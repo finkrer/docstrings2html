@@ -10,7 +10,7 @@ class Parser:
         self.show_empty = show_empty
 
     def _split_lines(self, lines, separator_marker):
-        """Split lines into groups delimited by lines containing the separator string"""
+        """Split lines into groups by lines containing the separator string"""
         result = []
         current_group = []
         for line in lines:

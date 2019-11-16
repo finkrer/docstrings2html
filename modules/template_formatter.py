@@ -11,4 +11,6 @@ class TemplateFormatter:
 
     def create_page(self, classes):
         """Create an HTML page from a list of classes"""
-        return self.template.render_unicode(stylesheet=self.stylesheet, classes=classes, module_name=self.name)
+        return self.template.render_unicode(stylesheet=self.stylesheet,
+                                            classes=classes,
+                                            module_name=self.name)

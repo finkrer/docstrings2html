@@ -1,9 +1,5 @@
-import os
-import sys
 import unittest
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             os.path.pardir))
 from modules.entity_parser import Parser
 
 
@@ -38,11 +34,13 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(result, '')
 
         with self.subTest('normal'):
-            result = self.parser._get_group_title(['def line1():', 'line 2'], self.separator)
+            result = self.parser._get_group_title(['def line1():', 'line 2'],
+                                                  self.separator)
             self.assertEqual(result, 'line1()')
 
         with self.subTest('no title'):
-            result = self.parser._get_group_title(['line1', 'line 2'], self.separator)
+            result = self.parser._get_group_title(['line1', 'line 2'],
+                                                  self.separator)
             self.assertEqual(result, '')
 
     def test_split_title(self):
@@ -81,11 +79,13 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(result, 'line1')
 
         with self.subTest('multiline'):
-            result = self.parser._get_docstring(['"""line1\n', 'line2\n', '"""\n'])
+            result = self.parser._get_docstring(
+                ['"""line1\n', 'line2\n', '"""\n'])
             self.assertEqual(result, 'line1\nline2')
 
         with self.subTest('two docstrings'):
-            result = self.parser._get_docstring(['"""line1"""\n', '"""line2"""\n'])
+            result = self.parser._get_docstring(
+                ['"""line1"""\n', '"""line2"""\n'])
             self.assertEqual(result, 'line1')
 
     def test_get_methods(self):
@@ -94,7 +94,9 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(result, [])
 
         with self.subTest('normal'):
-            result = self.parser.get_methods(['line1', 'def line2(param1, param2): ', '"""line3"""', 'line4'])
+            result = self.parser.get_methods(
+                ['line1', 'def line2(param1, param2): ', '"""line3"""',
+                 'line4'])
             self.assertEqual(result[0].name, 'line2')
             self.assertEqual(result[0].parameters, ['param1', 'param2'])
             self.assertEqual(result[0].docstring, 'line3')
@@ -111,7 +113,8 @@ class ParserTest(unittest.TestCase):
 
         with self.subTest('non-public'):
             parser_n = Parser(True, False)
-            lines = ['line1', 'def _line2(param1, param2): ', '"""line3"""', 'line4']
+            lines = ['line1', 'def _line2(param1, param2): ', '"""line3"""',
+                     'line4']
             result = self.parser.get_methods(lines)
             result_n = parser_n.get_methods(lines)
             self.assertEqual(result, [])
@@ -125,7 +128,9 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(result, [])
 
         with self.subTest('normal'):
-            result = self.parser.get_classes(['class A(object): \n', '"""line"""\n', 'def b(): \n', '"""line"""\n'])
+            result = self.parser.get_classes(
+                ['class A(object): \n', '"""line"""\n', 'def b(): \n',
+                 '"""line"""\n'])
             self.assertEqual(result[0].name, 'A')
             self.assertEqual(result[0].parameters, 'object')
             self.assertEqual(result[0].docstring, 'line')
@@ -133,7 +138,8 @@ class ParserTest(unittest.TestCase):
 
         with self.subTest('non-public'):
             parser_n = Parser(True, False)
-            lines = ['class _A(object): \n', '"""line"""\n', 'def b(): \n', '"""line"""\n']
+            lines = ['class _A(object): \n', '"""line"""\n', 'def b(): \n',
+                     '"""line"""\n']
             result = self.parser.get_classes(lines)
             result_n = parser_n.get_classes(lines)
             self.assertEqual(result, [])
