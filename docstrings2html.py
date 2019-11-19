@@ -24,12 +24,6 @@ TEMPLATES = ['./templates/base.html',
              './templates/index.html',
              './templates/docpage.html']
 
-sys.argv = [
-    sys.argv[0],
-    '',
-    '-di'
-]
-
 
 def main():
     """Application entry point"""
@@ -39,10 +33,10 @@ def main():
     try:
         template_formatter = TemplateFormatter('./')
         if not all(Path(template).is_file() for template in TEMPLATES):
-            raise FileNotFoundError('Template files not found in /templates,'
+            raise FileNotFoundError('Template files not found in /templates, '
                                     f'should have {", ".join(TEMPLATES)}')
     except Exception as e:
-        _exit(f'Error while accessing templates :\n{e}',
+        _exit(f'Error while accessing templates:\n{e}',
               1)
 
     if arguments.directory:
@@ -118,7 +112,7 @@ def try_write(filename, data, message, error_code=1):
 def _parse_arguments():
     """Parse arguments"""
     argparser = argparse.ArgumentParser(
-        description='Convert a Python file into an HTML documentation page')
+        description='Create HTML documentation pages from Python module files')
     argparser.add_argument('input_files', help='Path to input files',
                            nargs='+')
     argparser.add_argument('--output', help='Path to output directory',
