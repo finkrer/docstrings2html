@@ -20,6 +20,16 @@ try:
 except Exception as e:
     _exit(f'Program modules not found: "{e}"', 1)
 
+TEMPLATES = ['./templates/base.html',
+             './templates/index.html',
+             './templates/docpage.html']
+
+sys.argv = [
+    sys.argv[0],
+    '',
+    '-di'
+]
+
 
 def main():
     """Application entry point"""
@@ -28,18 +38,15 @@ def main():
     parser = Parser(arguments.nonpublic, arguments.empty)
     try:
         template_formatter = TemplateFormatter('./')
+        if not all(Path(template).is_file() for template in TEMPLATES):
+            raise FileNotFoundError('Template files not found in /templates,'
+                                    f'should have {", ".join(TEMPLATES)}')
     except Exception as e:
-        _exit(f'Error while rendering template {arguments.template}:\n{e}',
+        _exit(f'Error while accessing templates :\n{e}',
               1)
 
     if arguments.directory:
-        files = []
-        for directory in arguments.input_files:
-            dir_path = Path(directory)
-            dir_files = dir_path.rglob('*.py')
-            dir_files = [(file, file.relative_to(dir_path)) for file in
-                         dir_files]
-            files.extend(dir_files)
+        files = get_files_from_directories(arguments.input_files)
     else:
         files = [(file, file) for file in arguments.input_files]
 
@@ -48,13 +55,45 @@ def main():
                       template_formatter)
 
     if arguments.index:
-        output_paths = [str(file[1]) + '.html' for file in files]
-        output_paths.sort()
-        base_path = output.resolve()
-        page = template_formatter.create_index(base_path, output_paths)
-        index_path = output.joinpath('index.html')
-        try_write(index_path, page, f'Error while accessing output file '
-                                    f'{index_path}:\n')
+        write_index(output, files, template_formatter)
+
+
+def get_files_from_directories(directories):
+    """Find all Python files and their output paths in the given directories"""
+    files = []
+    for directory in directories:
+        dir_path = Path(directory)
+        dir_files = dir_path.rglob('*.py')
+        dir_files = [(file, file.relative_to(dir_path)) for file in
+                     dir_files]
+        files.extend(dir_files)
+    return files
+
+
+def write_index(output_dir, files, template_formatter):
+    """Create index.html and write it to disk"""
+    output_paths = [str(file[1]) + '.html' for file in files]
+    output_paths.sort()
+    base_path = output_dir.resolve()
+    page = template_formatter.create_index(base_path, output_paths)
+    index_path = output_dir.joinpath('index.html')
+    try_write(index_path, page, f'Error while accessing output file '
+                                f'{index_path}:\n')
+
+
+def write_docpage(input_path, output_path, parser, formatter):
+    """Create docpage and write it to disk"""
+    path = Path(input_path)
+    lines = try_read(input_path, f'Error while accessing input file '
+                                 f'{input_path}:\n')
+    classes = parser.get_classes(lines)
+    page = formatter.create_docpage(path.name, classes)
+    output_dir = Path(output_path).parent
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True)
+    file_path = f'{output_path}.html'
+    try_write(file_path, page, f'Error while accessing output file '
+                               f'{file_path}:\n')
 
 
 def try_read(filename, message, error_code=1):
@@ -76,21 +115,6 @@ def try_write(filename, data, message, error_code=1):
         _exit(message + str(e), error_code)
 
 
-def write_docpage(input_path, output_path, parser, formatter):
-    """Create docpage and write it to disk"""
-    path = Path(input_path)
-    lines = try_read(input_path, f'Error while accessing input file '
-                                 f'{input_path}:\n')
-    classes = parser.get_classes(lines)
-    page = formatter.create_docpage(path.name, classes)
-    output_dir = Path(output_path).parent
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True)
-    file_path = f'{output_path}.html'
-    try_write(file_path, page, f'Error while accessing output file '
-                               f'{file_path}:\n')
-
-
 def _parse_arguments():
     """Parse arguments"""
     argparser = argparse.ArgumentParser(
@@ -98,7 +122,7 @@ def _parse_arguments():
     argparser.add_argument('input_files', help='Path to input files',
                            nargs='+')
     argparser.add_argument('--output', help='Path to output directory',
-                           nargs='?', default='./')
+                           nargs='?', default='documentation')
     argparser.add_argument('--directory', '-d',
                            help='Treat input files as directories',
                            action='store_true')
