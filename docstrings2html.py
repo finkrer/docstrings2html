@@ -78,7 +78,7 @@ def write_index(output_dir, files, template_formatter):
 def write_docpage(input_path, output_path, parser, formatter):
     """Create docpage and write it to disk"""
     path = Path(input_path)
-    lines = try_read(input_path, f'Error while accessing input file '
+    lines = try_read(input_path, f'Error while accessing input file'
                                  f'{input_path}:\n')
     classes = parser.get_classes(lines)
     page = formatter.create_docpage(path.name, classes)
@@ -86,7 +86,7 @@ def write_docpage(input_path, output_path, parser, formatter):
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
     file_path = f'{output_path}.html'
-    try_write(file_path, page, f'Error while accessing output file '
+    try_write(file_path, page, f'Error while accessing output file'
                                f'{file_path}:\n')
 
 
