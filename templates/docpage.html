@@ -3,8 +3,9 @@
 
 <%block name="title">${module_name}</%block>
 <p class="module-name">${module_name}</p>
+<%include file="/templates/module_index.html" args="classes=classes"/>
 % for cls in classes:
-        ${print_class(cls)}
+    ${print_class(cls)}
 % endfor
 
 <%def name='print_class(cls)'>
@@ -12,10 +13,10 @@
         <div class="class">
         <p class="class-signature">
         % if cls.parameters:
-            <span class="class-name">${cls.name}</span>(<span
+            <span class="class-name"><a id="${cls.name}"></a>${cls.name}</span>(<span
                 class="class-parameters">${cls.parameters}</span>)
         % else:
-            <span class="class-name">${cls.name}</span>
+            <span class="class-name"><a id="${cls.name}"></a>${cls.name}</span>
         % endif
     % endif
     % if cls.name:
@@ -25,17 +26,18 @@
         <pre class="class-docstring">${cls.docstring}</pre>
     % endif
     % for method in cls.methods:
-        ${print_method(method)}
+        ${print_method(method, cls.name)}
     % endfor
     % if cls.name:
         </div>
     % endif
 </%def>
 
-<%def name='print_method(method)'>
+<%def name='print_method(method, link_prefix)'>
+    <% prefix = link_prefix + '_' if link_prefix else '' %>
     <div class="method">
         <p class="method-signature">
-            <span class="method-name">${method.name}</span>(<span
+            <span class="method-name"><a id="${prefix}${method.name}"></a>${method.name}</span>(<span
                 class="method-parameters">${', '.join(method.parameters)}</span>)
         </p>
         <pre class="method-docstring">${method.docstring}</pre>

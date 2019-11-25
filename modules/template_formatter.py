@@ -2,7 +2,7 @@ from mako.lookup import TemplateLookup
 
 
 class TemplateFormatter:
-    """Formats a list of classes using provided template and stylesheet"""
+    """Finds and renders template files"""
 
     def __init__(self, template_directory):
         self.lookup = TemplateLookup(directories=[template_directory])

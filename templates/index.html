@@ -38,10 +38,10 @@
             <span class="tree">${pre}</span>
             % if row.node.name.endswith('.html'):
                 <a href="${get_path(row.node)}" class="link">
-                    ${row.node.name}
+                    ${row.node.name[:-len('.html')]}
                 </a>
             % else:
-                <span class="tree">${row.node.name}</span>
+                <span class="package">${row.node.name}</span>
             % endif
         </p>
     % endfor

@@ -6,7 +6,7 @@ from modules.template_formatter import TemplateFormatter
 
 class FormatterTest(unittest.TestCase):
     def setUp(self):
-        self.formatter = TemplateFormatter('../')
+        self.formatter = TemplateFormatter('./')
         self.maxDiff = None
 
     def test_create_page(self):

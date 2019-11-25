@@ -2,6 +2,7 @@
 """Docstring to HTML converter"""
 
 import argparse
+import fnmatch
 import sys
 from pathlib import Path
 
@@ -24,6 +25,12 @@ TEMPLATES = ['./templates/base.html',
              './templates/index.html',
              './templates/docpage.html']
 
+sys.argv = [
+    sys.argv[0],
+    'numpy',
+    '-i'
+]
+
 
 def main():
     """Application entry point"""
@@ -39,10 +46,17 @@ def main():
         _exit(f'Error while accessing templates:\n{e}',
               1)
 
-    if arguments.directory:
-        files = get_files_from_directories(arguments.input_files)
-    else:
-        files = [(file, file) for file in arguments.input_files]
+    files = []
+    for file in arguments.input_files:
+        path = Path(file)
+        if path.is_dir():
+            files.extend(get_files_from_directory(path))
+        else:
+            files.append((path, path))
+
+    files = [file for file in files if
+             not is_ignored(file[0].name, arguments.ignore,
+                            arguments.nonpublic)]
 
     for file in files:
         write_docpage(file[0], output.joinpath(file[1]), parser,
@@ -52,16 +66,21 @@ def main():
         write_index(output, files, template_formatter)
 
 
-def get_files_from_directories(directories):
-    """Find all Python files and their output paths in the given directories"""
-    files = []
-    for directory in directories:
-        dir_path = Path(directory)
-        dir_files = dir_path.rglob('*.py')
-        dir_files = [(file, file.relative_to(dir_path)) for file in
-                     dir_files]
-        files.extend(dir_files)
-    return files
+def is_ignored(file, ignore_list, show_nonpublic):
+    return (is_in_ignore_list(file, ignore_list)
+            or (file.startswith('_') and not show_nonpublic))
+
+
+def is_in_ignore_list(path, ignore_list):
+    return any(fnmatch.fnmatch(path, mask) for mask in ignore_list)
+
+
+def get_files_from_directory(directory):
+    """Find all Python files and their output paths in the given directory"""
+    dir_path = Path(directory)
+    dir_files = dir_path.rglob('*.py')
+    return [(file, file.relative_to(dir_path)) for file in
+            dir_files]
 
 
 def write_index(output_dir, files, template_formatter):
@@ -117,9 +136,8 @@ def _parse_arguments():
                            nargs='+')
     argparser.add_argument('--output', help='Path to output directory',
                            nargs='?', default='documentation')
-    argparser.add_argument('--directory', '-d',
-                           help='Treat input files as directories',
-                           action='store_true')
+    argparser.add_argument('--ignore', help='Files to ignore, can use masks',
+                           nargs='*', default=['*_test.py', 'test_*.py'])
     argparser.add_argument('--index', '-i',
                            help='Create an index.html file with links to all '
                                 'output files',
