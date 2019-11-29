@@ -1,5 +1,6 @@
 import re
 import sys
+from dataclasses import dataclass
 
 
 class Parser:
@@ -116,45 +117,25 @@ class Parser:
         return '\n'.join(trimmed)
 
 
+@dataclass
 class Entity:
     """Base class for classes and methods"""
-
-    def __init__(self, name, parameters, docstring):
-        self._name = name
-        self._docstring = docstring
-        self._parameters = parameters
+    name: str
+    parameters: list
+    docstring: str
 
     def is_public(self):
         return not self.name.startswith('_')
 
-    @property
-    def name(self):
-        return self._name
 
-    @property
-    def docstring(self):
-        return self._docstring
-
-    @property
-    def parameters(self):
-        return self._parameters
-
-
+@dataclass
 class Class(Entity):
     """Representation of a class"""
-
     TITLE_MARKER = 'class '
-
-    def __init__(self, name, parameters, docstring, methods):
-        super().__init__(name, parameters, docstring)
-        self._methods = methods
-
-    @property
-    def methods(self):
-        return self._methods
+    methods: list
 
 
+@dataclass
 class Method(Entity):
     """Representation of a method"""
-
     TITLE_MARKER = 'def '

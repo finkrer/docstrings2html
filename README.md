@@ -7,7 +7,7 @@
 docstrings с выводом в виде HTML-страницы.
 
 ## Требования
-* Python не ниже версии 3.6
+* Python не ниже версии 3.7
 * mako
 * anytree
 
@@ -26,7 +26,7 @@ docstrings с выводом в виде HTML-страницы.
 
 * `./docstrings2html.py module1.py module2.py --output=./documentation`
 
-* `./docstrings2html.py -d modules`
+* `./docstrings2html.py package1 package2`
 
 ## Подробности реализации
 Реализующие логику программы модули расположены в папке `modules/`.

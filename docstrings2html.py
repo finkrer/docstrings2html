@@ -12,8 +12,8 @@ def _exit(message, error_code):
     sys.exit(error_code)
 
 
-if sys.version_info < (3, 6):
-    _exit('Use python >= 3.6', 1)
+if sys.version_info < (3, 7):
+    _exit('Use python >= 3.7', 1)
 
 try:
     from modules.entity_parser import Parser
@@ -24,12 +24,6 @@ except Exception as e:
 TEMPLATES = ['./templates/base.html',
              './templates/index.html',
              './templates/docpage.html']
-
-sys.argv = [
-    sys.argv[0],
-    'numpy',
-    '-i'
-]
 
 
 def main():
