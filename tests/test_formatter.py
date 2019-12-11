@@ -8,7 +8,7 @@ from modules.template_formatter import TemplateFormatter
 
 class FormatterTest(unittest.TestCase):
     def setUp(self):
-        self.formatter = TemplateFormatter('../')
+        self.formatter = TemplateFormatter('./')
         self.maxDiff = None
 
     def assert_strings_in_page(self, page, *strings):
