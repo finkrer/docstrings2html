@@ -1,20 +1,32 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="/templates/base.html"/>
 
-<%block name="title">${module_name}</%block>
-<p class="module-name">${module_name}</p>
-<%include file="/templates/module_index.html" args="classes=classes"/>
-% for cls in classes:
+<%block name="title">${module.name}</%block>
+<p class="index-header">
+    <%include file="/templates/navbar.html" args="packages=module"/>
+    <a href="#" class="module-link" onclick="event.preventDefault();">${module.path.name}</a>
+</p>
+% if any(class_.methods for class_ in module.classes):
+    <p>
+        <span class="module-index-header">Index</span>
+        <a href="#" class="module-expand-button" id="button-links"
+           onclick="toggle_visibility('links'); event.preventDefault();">+</a>
+    </p>
+% endif
+<div class="index">
+        <%include file="/templates/module_index.html" args="base_path=base_path, module=module, id='links'"/>
+</div>
+% for cls in module.classes:
     ${print_class(cls)}
 % endfor
 
-<%def name='print_class(cls)'>
+<%def name="print_class(cls)">
     % if cls.name:
         <div class="class">
         <p class="class-signature">
         % if cls.parameters:
-            <span class="class-name"><a id="${cls.name}"></a>${cls.name}</span>(<span
-                class="class-parameters">${cls.parameters}</span>)
+            <span class="class-name"><a
+                    id="${cls.name}"></a>${cls.name}</span>(<span class="class-parameters">${cls.parameters}</span>)
         % else:
             <span class="class-name"><a id="${cls.name}"></a>${cls.name}</span>
         % endif
@@ -33,7 +45,7 @@
     % endif
 </%def>
 
-<%def name='print_method(method, link_prefix)'>
+<%def name="print_method(method, link_prefix)">
     <% prefix = link_prefix + '_' if link_prefix else '' %>
     <div class="method">
         <p class="method-signature">

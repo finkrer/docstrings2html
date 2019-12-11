@@ -35,22 +35,42 @@
                 background-color: var(--base15);
             }
 
-            .module-name {
-                color: var(--blue);
-                font-size: 22pt;
-                font-weight: bold;
-                margin-left: 1em;
-            }
-
-            .class, .links {
+            .class {
                 background-color: var(--base2);
                 margin-left: 2em;
                 padding: 1px;
             }
 
-            .module-links {
+            .method-links {
+                margin-left: 0.25em;
+            }
+
+            .index {
+                margin-left: 2em
+            }
+
+            .package-docstring {
                 background-color: var(--base2);
                 margin-left: 2em;
+                padding: 1px;
+                display: none;
+            }
+
+            .links {
+                padding: 1em;
+                line-height: 150%;
+            }
+
+            .package-links {
+                background-color: var(--base2);
+                padding: 1em;
+                display: none;
+                border: 1px solid var(--magenta);
+                line-height: 150%;
+            }
+
+            .module-links {
+                background-color: var(--base2);
                 padding: 1em;
                 display: none;
                 border: 1px solid var(--blue);
@@ -75,7 +95,7 @@
                 margin-left: 1em;
             }
 
-            .class-docstring, .method-docstring {
+            .class-docstring, .method-docstring, .package-docstring-text {
                 color: var(--base01);
                 margin-left: 2em;
             }
@@ -88,7 +108,13 @@
                 font-style: italic;
             }
 
-            .link {
+            .package-link {
+                color: var(--magenta);
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            .module-link {
                 color: var(--blue);
                 text-decoration: none;
                 font-weight: bold;
@@ -107,45 +133,45 @@
             }
 
             .index-link {
-                margin-left: 2em;
+                margin-left: 1em
             }
 
-            .index-header {
-                color: var(--base01);
-                font-size: 20pt;
-                margin-left: 1em;
-            }
-
-            .module-index-header {
+            .index-header, .module-index-header {
                 color: var(--base01);
                 font-size: 16pt;
                 margin-left: 1em;
             }
 
-            .tree {
-                color: var(--base01)
+            .expand-button {
+                color: var(--base01);
+                text-decoration: none;
+                font-size: 18px;
             }
 
-            .package {
+            .package-expand-button {
                 color: var(--magenta);
+                text-decoration: none;
+                font-size: 24px;
                 font-weight: bold;
             }
 
-            .button {
-                background-color: var(--blue);
-                border: none;
-                color: white;
-                padding: 5px 10px;
-                text-align: center;
+            .module-expand-button {
+                color: var(--blue);
                 text-decoration: none;
-                display: inline-block;
-                font-size: 14px;
-                margin: 4px 2px;
-                cursor: pointer;
+                font-size: 24px;
+                font-weight: bold;
             }
         </style>
     </head>
     <body class="body">
         ${self.body()}
+    <script>
+        function toggle_visibility(elementId) {
+            let element = document.getElementById(elementId);
+            element.style.display = element.style.display === 'block' ? 'none' : 'block';
+            let button = document.getElementById('button-' + elementId).firstChild;
+            button.data = element.style.display === 'none' ? '+' : '-'
+        }
+    </script>
     </body>
     </html>

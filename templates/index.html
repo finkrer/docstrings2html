@@ -1,49 +1,75 @@
 ## -*- coding: utf-8 -*-
 <%inherit file="/templates/base.html"/>
-
 <%block name="title">Index</%block>
-<%!
-    from anytree import Node, RenderTree
-    from anytree.search import find
-
-    def build_tree(files):
-        files = [file.replace('\\', '/') for file in files]
-        tree = Node('')
-        for file in files:
-            previous_part = tree
-            parts = file.split('/')
-            for part in parts:
-                parent = find(tree, filter_ = lambda node: node.name == previous_part.name
-                         and node.depth == previous_part.depth)
-                double = find(tree, filter_ = lambda node: node.name == part
-                         and node.depth == previous_part.depth + 1)
-                if not double:
-                    new_part = Node(part, parent=parent)
-                    previous_part = new_part
-                else:
-                    previous_part = double
-
-        return RenderTree(tree)
-
-    def get_path(node):
-        return '.' + '/'.join([n.name for n in node.ancestors]) + '/' + node.name
-%>
-
-<p class="index-header">Index of ${base_path}</p>
+<p class="index-header">
+    <%include file="/templates/navbar.html" args="packages=packages"/>
+    <a href="#" class="package-link" onclick="event.preventDefault();">${packages.path.stem}</a>
+</p>
 
 <div class="links">
-    % for row in build_tree(files):
-        <p class="links">
-            <% pre = row.pre if row.pre.startswith('│') or not row.pre else '│' + row.pre %>
-            <span class="tree">${pre}</span>
-            % if row.node.name.endswith('.html'):
-                <a href="${get_path(row.node)}" class="link">
-                    ${row.node.name[:-len('.html')]}
-                </a>
-            % else:
-                <span class="package">${row.node.name}</span>
-            % endif
-        </p>
+    % for package in packages.packages:
+        % if not package.is_empty():
+            ${print_package(package)}
+        % endif
     % endfor
+    % for module in packages.modules:
+                    ${print_module(module)}
+% endfor
 </div>
 
+% if packages.docstring:
+    <p>
+        <span class="index-header">Package documentation</span>
+        <a href="#" class="package-expand-button" id="button-package-docstring"
+                onclick="toggle_visibility('package-docstring'); event.preventDefault();">+
+        </a>
+    </p>
+    <div class="package-docstring" id="package-docstring">
+        <pre class="package-docstring-text">${packages.docstring}</pre>
+    </div>
+% endif
+
+<%def name="print_package(package)">
+    <div class="package-elements">
+        <% package_link_id = 'package-links-' + create_id_from_path(package.path) %>
+        <a href="#" class="expand-button" id="button-${package_link_id}"
+           onclick="toggle_visibility('${package_link_id}'); event.preventDefault();">+</a>
+        <a href="${base_path.joinpath(package.path).joinpath('index.html')}"
+           class="package-link">${package.name}</a>
+        <div class="package-links" id="${package_link_id}">
+            % for nested_package in package.packages:
+                % if not nested_package.is_empty():
+                    ${print_package(nested_package)}
+                % endif
+            % endfor
+            % for module in package.modules:
+                                    ${print_module(module)}
+        % endfor
+        </div>
+    </div>
+</%def>
+
+<%def name="print_module(module)">
+    <% module_link_id = 'module-links-' + create_id_from_path(module.path) %>
+    <% is_expandable = any(class_.methods for class_ in module.classes) %>
+    <div class="module-elements">
+        % if is_expandable:
+            <a href="#" class="expand-button" id="button-${module_link_id}"
+               onclick="toggle_visibility('${module_link_id}'); event.preventDefault();">+</a>
+        % else:
+            &nbsp
+        % endif
+        <a href="${base_path.joinpath(module.path)}.html"
+           class="module-link">${module.name}</a>
+        % if is_expandable:
+            <%include file="/templates/module_index.html" args="base_path=base_path, module=module,
+                                                                   id=module_link_id"/>
+        % endif
+    </div>
+</%def>
+
+<%!
+    def create_id_from_path(path):
+        path = str(path)
+        return path.replace('/', '-').replace('\\', '-')
+%>

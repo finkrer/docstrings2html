@@ -1,11 +1,11 @@
 import unittest
 
-from modules.entity_parser import Parser
+from modules.module_parser import ModuleParser
 
 
-class ParserTest(unittest.TestCase):
+class ModuleParserTest(unittest.TestCase):
     def setUp(self):
-        self.parser = Parser(False, False)
+        self.parser = ModuleParser(False, False)
         self.separator = 'def '
 
     def test_split_lines(self):
@@ -71,20 +71,20 @@ class ParserTest(unittest.TestCase):
 
     def test_get_docstring(self):
         with self.subTest('empty'):
-            result = self.parser._get_docstring([])
+            result = self.parser.get_docstring([])
             self.assertEqual(result, '')
 
         with self.subTest('on one line'):
-            result = self.parser._get_docstring(['  """line1"""'])
+            result = self.parser.get_docstring(['  """line1"""'])
             self.assertEqual(result, 'line1')
 
         with self.subTest('multiline'):
-            result = self.parser._get_docstring(
+            result = self.parser.get_docstring(
                 ['"""line1\n', 'line2\n', '"""\n'])
             self.assertEqual(result, 'line1\nline2')
 
         with self.subTest('two docstrings'):
-            result = self.parser._get_docstring(
+            result = self.parser.get_docstring(
                 ['"""line1"""\n', '"""line2"""\n'])
             self.assertEqual(result, 'line1')
 
@@ -102,7 +102,7 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(result[0].docstring, 'line3')
 
         with self.subTest('no docstring'):
-            parser_e = Parser(False, True)
+            parser_e = ModuleParser(False, True)
             lines = ['line1', 'def line2(param1, param2): ', 'line3']
             result = self.parser.get_methods(lines)
             result_e = parser_e.get_methods(lines)
@@ -112,7 +112,7 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(result_e[0].docstring, '')
 
         with self.subTest('non-public'):
-            parser_n = Parser(True, False)
+            parser_n = ModuleParser(True, False)
             lines = ['line1', 'def _line2(param1, param2): ', '"""line3"""',
                      'line4']
             result = self.parser.get_methods(lines)
@@ -137,7 +137,7 @@ class ParserTest(unittest.TestCase):
             self.assertEqual(result[0].methods[0].name, 'b')
 
         with self.subTest('non-public'):
-            parser_n = Parser(True, False)
+            parser_n = ModuleParser(True, False)
             lines = ['class _A(object): \n', '"""line"""\n', 'def b(): \n',
                      '"""line"""\n']
             result = self.parser.get_classes(lines)

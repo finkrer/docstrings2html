@@ -1,0 +1,9 @@
+## -*- coding: utf-8 -*-
+<%page args="packages"/>
+
+<% path_len = len(packages.path.parts) - 1 %>
+% for i in range(path_len):
+    <a href="${base_path \
+    .joinpath(packages.path.parents[path_len - i - 1]) \
+    .joinpath('index.html')}" class="package-link">${packages.path.parts[i]}</a> >
+% endfor

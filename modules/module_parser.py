@@ -1,10 +1,11 @@
 import re
 import sys
 from dataclasses import dataclass
+from typing import List
 
 
-class Parser:
-    """Parser for classes and methods"""
+class ModuleParser:
+    """Parser for classes, methods and their docstrings"""
 
     def __init__(self, show_nonpublic, show_empty):
         self.show_nonpublic = show_nonpublic
@@ -57,7 +58,7 @@ class Parser:
             signature = self._get_group_title(m, Method.TITLE_MARKER)
             name, parameters = self._split_title(signature)
             parameters = self._split_parameters(parameters)
-            docstring = self._get_docstring(m)
+            docstring = self.get_docstring(m)
             method = Method(name, parameters, docstring)
             if (method.name
                     and (method.is_public() or self.show_nonpublic)
@@ -72,14 +73,14 @@ class Parser:
         for c in classes:
             signature = self._get_group_title(c, Class.TITLE_MARKER)
             name, parent = self._split_title(signature)
-            docstring = self._get_docstring(c)
+            docstring = self.get_docstring(c)
             methods = self.get_methods(c)
             class_ = Class(name, parent, docstring, methods)
             if class_.is_public() or self.show_nonpublic:
                 result.append(class_)
         return result
 
-    def _get_docstring(self, entity_lines):
+    def get_docstring(self, entity_lines):
         """Get entity's docstring from lines containing its text"""
         entity = ''.join(entity_lines)
         result = re.search(r'(?sm)\"\"\"(.*?)\"\"\"', entity)
@@ -125,17 +126,18 @@ class Entity:
     docstring: str
 
     def is_public(self):
+        """Check if entity is public"""
         return not self.name.startswith('_')
-
-
-@dataclass
-class Class(Entity):
-    """Representation of a class"""
-    TITLE_MARKER = 'class '
-    methods: list
 
 
 @dataclass
 class Method(Entity):
     """Representation of a method"""
     TITLE_MARKER = 'def '
+
+
+@dataclass
+class Class(Entity):
+    """Representation of a class"""
+    TITLE_MARKER = 'class '
+    methods: List[Method]

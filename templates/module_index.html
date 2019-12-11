@@ -1,33 +1,27 @@
 ## -*- coding: utf-8 -*-
-% if classes:
-    <p>
-        <span class="module-index-header">Index</span>
-        <button class="button" id="show-hide-button" onclick="toggle_links()">Show</button>
-    </p>
-% endif
-<div class="module-links" id="links">
-% for cls in classes:
-    % if cls.name:
-    <div class="index-link">
-        <a class="class-link" href="#${cls.name}">${cls.name}</a>
-    % endif
-    % for method in cls.methods:
-    <% prefix = cls.name + '_' if cls.name else '' %>
-        <div class="index-link">
-            <a class="method-link" href="#${prefix}${method.name}">${method.name}</a>
-        </div>
-    % endfor
-    % if cls.name:
-        </div>
-    % endif
-% endfor
-</div>
+<%page args="base_path, module, id"/>
 
-<script>
-    function toggle_links() {
-        let links = document.getElementById('links');
-        links.style.display = links.style.display === 'block' ? 'none' : 'block';
-        let button = document.getElementById('show-hide-button').firstChild;
-        button.data = button.data === 'Show' ? 'Hide' : 'Show'
-    }
-</script>
+<div class="module-links" id="${id}">
+    % for cls in module.classes:
+        % if cls.name:
+        <div class="index-link">
+            <a class="class-link" href="${base_path.joinpath(module.path)}.html#${cls.name}">${cls.name}</a>
+        % endif
+        % for method in cls.methods:
+        <% prefix = cls.name + '_' if cls.name else '' %>
+        % if cls.name:
+            <div class="method-links">
+        % endif
+            <div class="index-link">
+                <a class="method-link" href=
+                        "${base_path.joinpath(module.path)}.html#${prefix}${method.name}">${method.name}</a>
+            </div>
+        % if cls.name:
+            </div>
+        % endif
+        % endfor
+        % if cls.name:
+            </div>
+        % endif
+    % endfor
+</div>
