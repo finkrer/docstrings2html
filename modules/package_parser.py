@@ -25,13 +25,13 @@ class PackageParser:
     def get_loose_files(self, files, base_package):
         """Return packages and loose modules at given paths using the given
         package as the container"""
-        root = Path('./')
+        root = Path()
         for file in files:
             path = Path(file)
             if path.is_file():
-                base_package.modules.append(self._get_module(path))
+                base_package.modules.append(self._get_module(path, root))
             elif path.is_dir():
-                package = self._get_package(path, root)
+                package = self._get_package(path, path)
                 base_package.packages.append(package)
         return base_package
 
@@ -44,18 +44,19 @@ class PackageParser:
                 package = self._get_package(file, root)
                 packages.append(package)
             elif file.suffix == '.py' and not self._is_ignored(file):
-                modules.append(self._get_module(file))
+                modules.append(self._get_module(file, root))
         docstring = ''
         if (dir_ / '__init__.py').is_file():
             init = self.read_file(dir_ / '__init__''.py')
             docstring = self.module_parser.get_docstring(init)
-        package = Package(dir_, dir_.name, docstring, modules, packages)
+        package = Package(dir_.relative_to(root.parent), dir_.name, docstring,
+                          modules, packages)
         return package
 
-    def _get_module(self, path):
+    def _get_module(self, path, root):
         """Return module object for the given path"""
         contents = self.read_file(path)
-        return Module(path, path.name,
+        return Module(path.relative_to(root.parent), path.name,
                       self.module_parser.get_classes(contents))
 
     def _is_ignored(self, file):
@@ -66,6 +67,7 @@ class PackageParser:
 
 @dataclass
 class Module:
+    """Representation of a Python module"""
     path: Path
     name: str
     classes: List[Class]
@@ -73,6 +75,7 @@ class Module:
 
 @dataclass
 class Package:
+    """Representation of a Python package"""
     path: Path
     name: str
     docstring: str

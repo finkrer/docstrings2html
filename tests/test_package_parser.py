@@ -48,7 +48,7 @@ class PackageParserTest(unittest.TestCase):
                       def test():
                       """doc"""
                       ''') as file:
-            result = self.parser._get_module(file)
+            result = self.parser._get_module(file, Path())
         self.assertEqual(str(result.path), 'test.py')
         self.assertEqual(result.name, 'test.py')
         self.assertEqual(result.classes[0].methods[0].name, 'test')
