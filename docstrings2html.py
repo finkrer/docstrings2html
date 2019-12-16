@@ -44,6 +44,7 @@ def main():
         packages = Package(Path('./'), '', '', [], [])
         package_parser.get_loose_files(arguments.input_files, packages)
 
+    output.mkdir(parents=True, exist_ok=True)
     for package in packages:
         for module in package.modules:
             write_docpage(output, module, template_formatter)
@@ -57,6 +58,7 @@ def write_index(base_output_dir, package, formatter):
     page = formatter.create_index(base_path, package)
     filename = 'index.html'
     output_dir = base_output_dir.joinpath(package.path)
+    output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir.joinpath(filename)
     try_write(output_path, page)
 
@@ -68,8 +70,7 @@ def write_docpage(base_output_dir, module, formatter):
     output_dir = base_output_dir.joinpath(module.path.parent)
     output_path = base_output_dir.joinpath(module.path) \
         .with_suffix(module.path.suffix + '.html')
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     try_write(output_path, page)
 
 
