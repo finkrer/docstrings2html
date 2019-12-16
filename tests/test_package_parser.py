@@ -83,5 +83,5 @@ class PackageParserTest(unittest.TestCase):
                 with TempFile(Path('test.py'), ''):
                     result = self.parser._get_package(Path(), Path())
         self.assertEqual(result.docstring, 'docstring')
-        self.assertTrue(len(result.modules) == 1
-                        and result.modules[0].name == 'test.py')
+        self.assertTrue(any(module.name == 'test.py' for module in result.modules))
+        self.assertTrue(all(module.name != 'test.txt' for module in result.modules))
